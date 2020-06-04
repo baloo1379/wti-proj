@@ -11,6 +11,7 @@ class User(UserMixin, db.Model):
     name = db.Column(db.VARCHAR, nullable=False)
     password_hash = db.Column(db.VARCHAR, nullable=False)
     created = db.Column(db.TIMESTAMP, nullable=False)
+    jobs = db.relationship('Job', backref=db.backref('user', lazy=True), lazy=True)
 
     def __repr__(self):
         return f"<User(id={self.id}, name={self.name}>"

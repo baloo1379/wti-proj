@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, redirect, url_for, render_template, flash, request
+from flask import Blueprint, redirect, url_for, render_template, flash, request
 from flask_login import current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
 
@@ -32,7 +32,6 @@ def index():
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
-    print(request.url, request.args)
     if current_user.is_authenticated:
         return redirect(url_for('index.index'))
     form = LoginForm()
@@ -41,13 +40,11 @@ def login():
         if user is None or not user.check_password(form.password.data):
             flash('Invalid username or password')
             return redirect(url_for('index.login'))
-        login_user(user)
+        login_user(user, remember=True)
         flash(f"Welcome {user.name}")
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
-            print('unrecognized route', next_page)
-            next_page = url_for('index.index')
-        print('known route', next_page, request.url)
+            next_page = url_for('index.dashboard')
         return redirect(next_page)
     return render_template('login.html', title='Login', form=form)
 
@@ -58,11 +55,11 @@ def logout():
     return redirect(url_for('index.index'))
 
 
-@bp.route('/d')
+@bp.route('/dashboard')
 @login_required
 def dashboard():
-    logout_user()
-    return "dashboard", 200
+    jobs = Job.find(by={'user_id': current_user.id})
+    return render_template('dashboard.html', title='Dashboard', jobs=jobs)
 
 
 @bp.route('/register', methods=['GET', 'POST'])
@@ -75,5 +72,3 @@ def register():
         flash('Congratulations, you are now a registered user!')
         return redirect(url_for('index.login'))
     return render_template('register.html', title='Register', form=form)
-
-

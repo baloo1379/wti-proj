@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block body %}
+    <main class="container">
+        <article class="card mt-5 shadow">
+            <div class="card-body p-4">
+                <h1 class="card-title">Welcome {{ current_user.name }}.</h1>
+                <div class="card-text mb-5">
+                    <h2 class="h3">Add new prediction</h2>
+                </div>
+                <div class="card-text">
+                    <h2 class="h3">Menage your predictions</h2>
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Service name</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for job in jobs %}
+                            <tr>
+                                <td>{{ job.id }}</td>
+                                <td>{{ job.name }}</td>
+                                <td>{{ job.user.name }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </article>
+    </main>
+{% endblock %}

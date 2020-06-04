@@ -1,6 +1,5 @@
 from flask import Flask
 from flask_login import LoginManager
-from flask_wtf import CSRFProtect
 from app.models import db
 import os
 
@@ -27,7 +26,6 @@ app.config.from_object(Config())
 db.init_app(app)
 
 login = LoginManager()
-# csrf = CSRFProtect()
 
 
 with app.app_context():
@@ -41,4 +39,3 @@ with app.app_context():
 
     login.init_app(app)
     login.login_view = 'index.login'
-    # csrf.init_app(app)
