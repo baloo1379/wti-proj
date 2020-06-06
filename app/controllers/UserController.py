@@ -1,4 +1,4 @@
-from flask import Blueprint, redirect, url_for, render_template, flash, request
+from flask import Blueprint, redirect, url_for, render_template, flash, request, jsonify
 from flask_login import current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
 
@@ -6,6 +6,7 @@ from app.models.Job import Job
 from app.models.User import User
 from app.forms.LoginForm import LoginForm
 from app.forms.RegisterForm import RegisterForm
+from app.forms.NewPredictionForm import NewPredictionForm
 
 bp = Blueprint('index', __name__)
 
@@ -59,7 +60,8 @@ def logout():
 @login_required
 def dashboard():
     jobs = Job.find(by={'user_id': current_user.id})
-    return render_template('dashboard.html', title='Dashboard', jobs=jobs)
+    form = NewPredictionForm()
+    return render_template('dashboard.html', title='Dashboard', jobs=jobs, form=form)
 
 
 @bp.route('/register', methods=['GET', 'POST'])

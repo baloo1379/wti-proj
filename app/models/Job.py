@@ -25,8 +25,27 @@ class Job(db.Model):
         return f"Job: {self.id}, {self.name}, {self.result}, {self.status}, " \
                f"{self.data}, {self.created}"
 
+    def to_dict(self) -> dict:
+        return {
+            'id': self.id,
+            'name': self.name,
+            'result': self.result,
+            'status': self.status,
+            'data': self.data,
+            'user_id': self.user_id,
+            'created': self.created,
+        }
+
+    def set_status(self, status):
+        self.status = status
+        db.session.commit()
+
+    def set_result(self, result):
+        self.result = result
+        db.session.commit()
+
     @staticmethod
-    def create(name, data, current_user: User):
+    def create(name: str, data: str, current_user: User):
         model = Job(name=name, status=Job.PENDING, data=data, created=dt.now(), user_id=current_user.id)
         db.session.add(model)
         db.session.commit()
@@ -37,8 +56,8 @@ class Job(db.Model):
         if idx is None and by is None:
             raise ValueError('One of both argument must be present')
         if by is None:
-            return db.session.query(Job).filter(Job.id == idx)
-        return db.session.query(Job).filter_by(**by)
+            return db.session.query(Job).filter(Job.id == idx).order_by(Job.created.asc()).all()
+        return db.session.query(Job).filter_by(**by).order_by(Job.created.asc()).all()
 
     @staticmethod
     def find_one(idx=None, by=None):
@@ -46,8 +65,12 @@ class Job(db.Model):
             raise ValueError('One of both argument must be present')
         if by is None:
             return db.session.query(Job).filter(Job.id == idx).first()
-        return db.session.query(Job).filter(**by).first()
+        return db.session.query(Job).filter_by(**by).first()
+
+    @staticmethod
+    def pop():
+        return db.session.query(Job).filter_by(status='pending').order_by(Job.created.asc()).first()
 
     @staticmethod
     def all():
-        return db.session.query(Job).all()
+        return db.session.query(Job).order_by(Job.created.asc()).all()

@@ -3,9 +3,20 @@
     <main class="container">
         <article class="card mt-5 shadow">
             <div class="card-body p-4">
-                <h1 class="card-title">Welcome {{ current_user.name }}.</h1>
+                <h1 class="card-title">Welcome {{ current_user.name }}</h1>
                 <div class="card-text mb-5">
                     <h2 class="h3">Add new prediction</h2>
+                    <form action="{{ url_for('job.create') }}" method="post" novalidate>
+                        {{ form.hidden_tag() }}
+                        <div class="form-group">
+                            {{ form.data.label }}
+                            {{ form.data(class_='form-control') }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.submit(class_='btn btn-primary') }}
+                            <a class="btn btn-secondary" href="/job/queue">Queue</a>
+                        </div>
+                    </form>
                 </div>
                 <div class="card-text">
                     <h2 class="h3">Menage your predictions</h2>
@@ -14,6 +25,8 @@
                         <tr>
                             <th>ID</th>
                             <th>Service name</th>
+                            <th>Status</th>
+                            <th>Created at</th>
                             <th></th>
                         </tr>
                         </thead>
@@ -22,7 +35,19 @@
                             <tr>
                                 <td>{{ job.id }}</td>
                                 <td>{{ job.name }}</td>
-                                <td>{{ job.user.name }}</td>
+                                <td>{{ job.status }}</td>
+                                <td>{{ job.created.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td style="width: 117px;">
+                                    {% if job.status == 'done' %}
+                                    <button data-results-id="{{ job.id }}"
+                                            data-toggle="modal"
+                                            data-target="#results-modal"
+                                            class="btn btn-primary"
+                                            title="Check results">
+                                        <i class="fas fa-tasks"></i>&nbsp;Results
+                                    </button>
+                                    {% endif %}
+                                </td>
                             </tr>
                         {% endfor %}
                         </tbody>
@@ -31,4 +56,45 @@
             </div>
         </article>
     </main>
+    <div class="modal fade" id="results-modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Results</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p class="data">Modal body text goes here.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script>
+        (function () {
+            $('#results-modal').on('show.bs.modal', function (event) {
+                console.log('showing modal');
+                let button = $(event.relatedTarget);
+                let job_id = button.attr('data-results-id');
+                let data_field = $(this).find('p.data');
+                data_field.text('');
+
+                fetch(`/job/${job_id}`).then(resp => {
+                    console.log('resp', resp);
+                    return resp.json()
+                })
+                .then(resp => {
+                    console.log('resp', resp);
+                    data_field.text(resp.job.result);
+                })
+            })
+        })();
+    </script>
 {% endblock %}
