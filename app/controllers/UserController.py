@@ -11,20 +11,6 @@ from app.forms.NewPredictionForm import NewPredictionForm
 bp = Blueprint('index', __name__)
 
 
-"""
-web:
-- send data to make prediction
-- check status
-- check results
-- history*
-
-client:
-- download data to make prediction
-- send status
-- send results
-"""
-
-
 @bp.route('/')
 @bp.route('/index')
 def index():

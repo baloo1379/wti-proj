@@ -7,7 +7,7 @@ import os
 class Config(object):
     SECRET_KEY = os.urandom(24)
 
-    SERVER_NAME = 'baloo.local:5000'
+    SERVER_NAME = 'baloo.local'
 
     WTF_CSRF_SECRET_KEY = 'qwe7fds[123]ds12fd[123$@'
 
@@ -15,7 +15,7 @@ class Config(object):
 
     SESSION_COOKIE_NAME = 'WTI-REST-WebSession'
 
-    SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:projekt-REST-wti-2020@localhost:5432/projekt-rest'
+    SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:projekt-REST-wti-2020@db:5432/projekt-rest'
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
@@ -31,11 +31,18 @@ login = LoginManager()
 with app.app_context():
     from . import models, controllers, services, forms
 
+    login.init_app(app)
+    login.login_view = 'index.login'
+
     db.create_all()
     forms.init_app(app)
     models.init_app(app)
     controllers.init_app(app)
     services.init_app(app)
 
-    login.init_app(app)
-    login.login_view = 'index.login'
+    from .models.User import User
+
+    @login.user_loader
+    def load_user(idx):
+        return User.find_one(idx)
+

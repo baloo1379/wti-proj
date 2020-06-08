@@ -130,4 +130,3 @@ dmypy.json
 
 /.idea
 /app/db.sqlite
-/docker-compose.yml

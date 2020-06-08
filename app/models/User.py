@@ -40,8 +40,3 @@ class User(UserMixin, db.Model):
     @staticmethod
     def all():
         return db.session.query(User).all()
-
-
-@login.user_loader
-def load_user(idx):
-    return User.find_one(int(idx))
