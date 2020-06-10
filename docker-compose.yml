@@ -6,7 +6,9 @@ services:
     image: postgres
     restart: always
     environment:
+      POSTGRES_USER: baloo
       POSTGRES_PASSWORD: projekt-REST-wti-2020
+      POSTGRES_DB: projekt-rest
     ports:
       - 5432:5432
 
@@ -23,9 +25,15 @@ services:
       - 6379:6379
 
   wti-proj:
-    build: .
-    image: wti-proj
+    build:
+      context: .
+      dockerfile: ./docker/wti-proj/Dockerfile
+    depends_on:
+      - db
+      - redis
     environment:
       APP_MODULE: app.__init__:app
+    volumes:
+      - ./app:/app/app
     ports:
       - 80:80

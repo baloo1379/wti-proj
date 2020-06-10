@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% block body %}
+    <main class="container">
+        <article class="card mt-5 shadow">
+            <div class="card-body p-4">
+                <h1 class="card-title">Menage tokens</h1>
+                <div class="card-text mb-5">
+                    <h2 class="h3">Generate new token</h2>
+                    <form action="{{ url_for('token.generate') }}" method="post" novalidate>
+                        {{ form.hidden_tag() }}
+                        <div class="form-group">
+                            {{ form.name.label }}
+                            {{ form.name(class_='form-control') }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.submit(class_='btn btn-primary') }}
+                        </div>
+                    </form>
+                </div>
+                <div class="card-text">
+                    <h2 class="h3">Stored tokens</h2>
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Created at</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for token in tokens %}
+                            <tr>
+                                <td>{{ token.name }}</td>
+                                <td>{{ token.created.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td style="width: 117px;">
+                                    <button class="btn btn-danger"
+                                            title="Remove token">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </article>
+    </main>
+    <div class="modal fade" id="results-modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Results</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p class="data">Modal body text goes here.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script>
+        (function () {
+            $('#results-modal').on('show.bs.modal', function (event) {
+                console.log('showing modal');
+                let button = $(event.relatedTarget);
+                let job_id = button.attr('data-results-id');
+                let data_field = $(this).find('p.data');
+                data_field.text('');
+
+                fetch(`/job/${job_id}`).then(resp => {
+                    console.log('resp', resp);
+                    return resp.json()
+                })
+                .then(resp => {
+                    console.log('resp', resp);
+                    data_field.text(resp.job.result);
+                })
+            })
+        })();
+    </script>
+{% endblock %}

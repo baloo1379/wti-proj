@@ -13,7 +13,7 @@ def create():
     form = NewPredictionForm(request.form)
     if form.validate_on_submit():
         flash(form.data.data)
-        Job.create('covid-19', form.data.data, current_user)
+        Job.create('fruits', form.data.data, current_user)
     return redirect(url_for('index.dashboard'))
 
 

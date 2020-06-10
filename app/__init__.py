@@ -15,7 +15,7 @@ class Config(object):
 
     SESSION_COOKIE_NAME = 'WTI-REST-WebSession'
 
-    SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:projekt-REST-wti-2020@db:5432/projekt-rest'
+    SQLALCHEMY_DATABASE_URI = 'postgresql://baloo:projekt-REST-wti-2020@db:5432/projekt-rest'
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 

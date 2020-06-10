@@ -13,7 +13,7 @@ class RegisterForm(FlaskForm):
     c_password = PasswordField('Confirm Password', validators=[DataRequired()])
     submit = SubmitField('Sign Up')
 
-    def validate_username(self, name):
+    def validate_name(self, name):
         user = User.query.filter_by(name=name.data).first()
         if user is not None:
             raise ValidationError('Please use a different username.')
