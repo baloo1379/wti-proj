@@ -6,7 +6,7 @@
                 <h1 class="card-title">Welcome {{ current_user.name }}</h1>
                 <div class="card-text mb-5">
                     <h2 class="h3">Add new prediction</h2>
-                    <form action="{{ url_for('job.create') }}" method="post" novalidate>
+                    <form action="{{ url_for('job.create') }}" method="post">
                         {{ form.hidden_tag() }}
                         <div class="form-group">
                             {{ form.data.label }}

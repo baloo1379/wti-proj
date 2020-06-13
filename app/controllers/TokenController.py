@@ -21,6 +21,23 @@ def generate():
     form = TokenForm(request.form)
     if form.validate_on_submit():
         api_key = Token.generate_api_key()
-        token = Token.create(name=form.data.name, api_key=api_key)
-        return jsonify(api_key=api_key)
+        token = Token.create(name=form.data.get('name'), api_key=api_key)
+        flash(f"Your \"{token.name}\" token's ID is {token.id}")
+    return redirect(url_for('token.view'))
+
+
+@bp.route('/<idx>', methods=['GET'])
+@login_required
+def get(idx):
+    token = Token.find_one(idx)
+    return jsonify(api_key=token.api_key_hash)
+
+
+@bp.route('/<idx>', methods=['DELETE'])
+@login_required
+def delete(idx):
+    token = Token.find_one(idx)
+    token.delete()
+    flash('Token deleted successfully')
+    return jsonify(deleted=True)
 

@@ -6,7 +6,7 @@
                 <h1 class="card-title">Menage tokens</h1>
                 <div class="card-text mb-5">
                     <h2 class="h3">Generate new token</h2>
-                    <form action="{{ url_for('token.generate') }}" method="post" novalidate>
+                    <form id="token" action="{{ url_for('token.generate') }}" method="post">
                         {{ form.hidden_tag() }}
                         <div class="form-group">
                             {{ form.name.label }}
@@ -33,7 +33,17 @@
                                 <td>{{ token.name }}</td>
                                 <td>{{ token.created.strftime('%Y-%m-%d %H:%M') }}</td>
                                 <td style="width: 117px;">
-                                    <button class="btn btn-danger"
+                                    <button data-token-id="{{ token.id }}"
+                                            data-toggle="modal"
+                                            data-target="#token-show-modal"
+                                            class="btn btn-primary"
+                                            title="Show token">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button data-token-id="{{ token.id }}"
+                                            data-toggle="modal"
+                                            data-target="#token-delete-modal"
+                                            class="btn btn-danger"
                                             title="Remove token">
                                         <i class="fas fa-trash"></i>
                                     </button>
@@ -46,17 +56,41 @@
             </div>
         </article>
     </main>
-    <div class="modal fade" id="results-modal" tabindex="-1" role="dialog">
+    <div class="modal fade" id="token-delete-modal" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Results</h5>
+                    <h5 class="modal-title">Delete token</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <p class="data">Modal body text goes here.</p>
+                    <p class="data">Do you really want to delete that token?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="delete-confirmation-button" data-token-id="0" class="btn btn-danger">
+                        Delete
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="token-show-modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Your API token</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Copy this text and paste in your client.</p>
+                    <blockquote class="blockquote p-3 bg-light border rounded">
+                        <samp style="word-break: break-word" id="token-place"></samp>
+                    </blockquote>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
@@ -69,21 +103,37 @@
 {% block js %}
     <script>
         (function () {
-            $('#results-modal').on('show.bs.modal', function (event) {
-                console.log('showing modal');
+            $('#token-delete-modal').on('show.bs.modal', function (event) {
                 let button = $(event.relatedTarget);
-                let job_id = button.attr('data-results-id');
-                let data_field = $(this).find('p.data');
-                data_field.text('');
+                let token_id = button.attr('data-token-id');
+                $('button#delete-confirmation-button').attr('data-token-id', token_id);
+            })
 
-                fetch(`/job/${job_id}`).then(resp => {
-                    console.log('resp', resp);
-                    return resp.json()
+            $('#token-show-modal').on('show.bs.modal', function (event) {
+                let $modal = $(this);
+                let button = $(event.relatedTarget);
+                let token_id = button.attr('data-token-id');
+                const jqxhr = $.get(`/token/${token_id}`);
+                jqxhr.done(request => {
+                    if (request.hasOwnProperty('api_key') && request.api_key) {
+                        $modal.find('#token-place').text(request.api_key);
+                    }
+                });
+            })
+
+            $('button#delete-confirmation-button').on('click', function (event) {
+                const $button = $(this);
+                const token_id = $button.attr('data-token-id');
+                const jqxhr = $.ajax({
+                    url: `/token/${token_id}`,
+                    method: 'DELETE',
                 })
-                .then(resp => {
-                    console.log('resp', resp);
-                    data_field.text(resp.job.result);
-                })
+                jqxhr.done(request => {
+                    if (request.hasOwnProperty('deleted') && request.deleted) {
+                        $('#token-delete-modal').modal('hide');
+                        location.reload();
+                    }
+                });
             })
         })();
     </script>

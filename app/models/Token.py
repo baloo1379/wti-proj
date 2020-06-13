@@ -5,7 +5,7 @@ from . import db
 
 
 class Token(db.Model):
-    __tablename__ = 'clients'
+    __tablename__ = 'tokens'
     id = db.Column(db.INTEGER, primary_key=True)
     name = db.Column(db.VARCHAR, nullable=False)
     api_key_hash = db.Column(db.VARCHAR, nullable=False)
@@ -13,6 +13,10 @@ class Token(db.Model):
 
     def __repr__(self):
         return f"<Token(id={self.id}, name={self.name}, created={self.created}>"
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
 
     @staticmethod
     def create(name, api_key):
