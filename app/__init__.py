@@ -1,21 +1,24 @@
 from flask import Flask
 from flask_login import LoginManager
 from app.models import db
+from dotenv import load_dotenv
 import os
+
+load_dotenv()
 
 
 class Config(object):
-    SECRET_KEY = os.urandom(24)
+    SECRET_KEY = os.getenv('SECRET_KEY')
 
-    SERVER_NAME = 'baloo.local'
+    SERVER_NAME = os.getenv('SERVER_NAME')
 
-    WTF_CSRF_SECRET_KEY = 'qwe7fds[123]ds12fd[123$@'
+    WTF_CSRF_SECRET_KEY = os.getenv('WTF_CSRF_SECRET_KEY')
 
     SESSION_COOKIE_SECURE = False
 
-    SESSION_COOKIE_NAME = 'WTI-REST-WebSession'
+    SESSION_COOKIE_NAME = os.getenv('SERVER_NAME')
 
-    SQLALCHEMY_DATABASE_URI = 'postgresql://baloo:projekt-REST-wti-2020@db:5432/projekt-rest'
+    SQLALCHEMY_DATABASE_URI = f"postgresql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@{os.getenv('DB_HOST')}/{os.getenv('DB_NAME')}"
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
